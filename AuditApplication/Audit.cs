@@ -16,6 +16,8 @@ namespace InterviewApplication {
         // We set this private unless we have a specific reason to expose it
         // We are using readonly to ensure that this list is not reassigned
         private readonly List<AuditEntry> AuditEntries = new List<AuditEntry>();
+        private readonly List<VacationRequest> VacationRequests = new List<VacationRequest>();
+        private int _nextRequestId = 1;
 
         // We no longer need to initialize these lists
         // public Audit() {
@@ -25,7 +27,7 @@ namespace InterviewApplication {
         // }
 
         // employee earned or took some vacation time
-        public void EnterAddition(int employeeNumber, int amount) {
+        public void EnterAddition(int employeeNumber, decimal amount) {
             // ActionTypes.Add(1);
             // ActionAmount.Add(amount);
             // EmployeeNumbers.Add(employeeNumber);
@@ -35,7 +37,7 @@ namespace InterviewApplication {
         }
 
         // employee's vacation time was manually corrected to a particular amount
-        public void EnterValue(int employeeNumber, int amount) {
+        public void EnterValue(int employeeNumber, decimal amount) {
             // ActionTypes.Add(2);
             // ActionAmount.Add(amount);
             // EmployeeNumbers.Add(employeeNumber);
@@ -126,6 +128,71 @@ namespace InterviewApplication {
                     ? current + entry.Amount 
                     : entry.Amount);
         }
+
+
+        public int RequestVacationTime(int employeeNumber, DateTime start, DateTime end)
+        {
+            if (start > end)
+            {
+                throw new ArgumentException("Start date must be before end date.");
+            }
+
+            var requestId = _nextRequestId++;
+            VacationRequests.Add(new VacationRequest
+            {
+                RequestId = requestId,
+                EmployeeNumber = employeeNumber,
+                StartDate = start,
+                EndDate = end,
+                Status = VacationRequestStatus.Pending
+            });
+
+            return requestId;
+        }
+
+        public bool ApproveVacationRequest(int requestId)
+{
+    var request = VacationRequests.FirstOrDefault(r => r.RequestId == requestId);
+    if (request == null || request.Status != VacationRequestStatus.Pending)
+    {
+        return false;
+    }
+
+    request.Status = VacationRequestStatus.Approved;
+    var vacationHours = CalculateRequestHours(requestId);
+
+    EnterAddition(request.EmployeeNumber, -vacationHours);
+    return true;
+}
+
+        public List<VacationRequest> GetUpcomingVacations(DateTime startDate, DateTime endDate)
+        {
+            return VacationRequests
+                .Where(r => r.Status == VacationRequestStatus.Approved &&
+                            r.StartDate >= startDate &&
+                            r.EndDate <= endDate)
+                .ToList();
+        }
+
+        public decimal CalculateRequestHours(int requestId)
+{
+    var request = VacationRequests.FirstOrDefault(r => r.RequestId == requestId);
+    if (request == null)
+    {
+        throw new ArgumentException("Invalid request ID");
+    }
+
+    var workDays = 0;
+    for (var date = request.StartDate; date <= request.EndDate; date = date.AddDays(1))
+    {
+        if (date.DayOfWeek != DayOfWeek.Saturday && date.DayOfWeek != DayOfWeek.Sunday)
+        {
+            workDays++;
+        }
+    }
+
+    return workDays * 8m; // Assuming 8-hour workdays
+}
 
     }
 
