@@ -151,19 +151,19 @@ namespace InterviewApplication {
         }
 
         public bool ApproveVacationRequest(int requestId)
-{
-    var request = VacationRequests.FirstOrDefault(r => r.RequestId == requestId);
-    if (request == null || request.Status != VacationRequestStatus.Pending)
-    {
-        return false;
-    }
+        {
+            var request = VacationRequests.FirstOrDefault(r => r.RequestId == requestId);
+            if (request == null || request.Status != VacationRequestStatus.Pending)
+            {
+                return false;
+            }
 
-    request.Status = VacationRequestStatus.Approved;
-    var vacationHours = CalculateRequestHours(requestId);
+            request.Status = VacationRequestStatus.Approved;
+            var vacationHours = CalculateRequestHours(requestId);
 
-    EnterAddition(request.EmployeeNumber, -vacationHours);
-    return true;
-}
+            EnterAddition(request.EmployeeNumber, -vacationHours);
+            return true;
+        }
 
         public List<VacationRequest> GetUpcomingVacations(DateTime startDate, DateTime endDate)
         {
@@ -175,24 +175,24 @@ namespace InterviewApplication {
         }
 
         public decimal CalculateRequestHours(int requestId)
-{
-    var request = VacationRequests.FirstOrDefault(r => r.RequestId == requestId);
-    if (request == null)
-    {
-        throw new ArgumentException("Invalid request ID");
-    }
-
-    var workDays = 0;
-    for (var date = request.StartDate; date <= request.EndDate; date = date.AddDays(1))
-    {
-        if (date.DayOfWeek != DayOfWeek.Saturday && date.DayOfWeek != DayOfWeek.Sunday)
         {
-            workDays++;
-        }
-    }
+            var request = VacationRequests.FirstOrDefault(r => r.RequestId == requestId);
+            if (request == null)
+            {
+                throw new ArgumentException("Invalid request ID");
+            }
 
-    return workDays * 8m; // Assuming 8-hour workdays
-}
+            var workDays = 0;
+            for (var date = request.StartDate; date <= request.EndDate; date = date.AddDays(1))
+            {
+                if (date.DayOfWeek != DayOfWeek.Saturday && date.DayOfWeek != DayOfWeek.Sunday)
+                {
+                    workDays++;
+                }
+            }
+
+            return workDays * 8m; // Assuming 8-hour workdays
+        }
 
     }
 
