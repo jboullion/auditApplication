@@ -64,7 +64,7 @@ namespace AuditApplication.Tests
         {
             var audit = new Audit();
             audit.EnterValue(1, 100); // Set initial balance
-            var requestId = audit.RequestVacationTime(1, new DateTime(2023, 7, 1), new DateTime(2023, 7, 5));
+            var requestId = audit.RequestVacationTime(1, new DateTime(2024, 7, 1), new DateTime(2024, 7, 5));
             
             audit.ApproveVacationRequest(requestId);
             
